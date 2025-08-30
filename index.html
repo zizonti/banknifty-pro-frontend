@@ -685,19 +685,35 @@
         // Token Management
         async function generateToken() {
             try {
-                showMessage('Opening Zerodha login page...', 'info');
+                showMessage('Getting Zerodha login URL...', 'info');
                 
                 const result = await apiCall(`/generate-login-url/${currentUser.username}`);
                 
-                window.open(result.login_url, '_blank');
-                
-                showMessage('Zerodha login page opened. Please login and copy the request_token from the URL.', 'info');
+                // Instead of window.open, show clickable link
                 const tokenStatus = document.getElementById('token-status');
                 const requestTokenInput = document.getElementById('request-token');
                 
-                if (tokenStatus) tokenStatus.classList.remove('hidden');
+                if (tokenStatus) {
+                    tokenStatus.classList.remove('hidden');
+                    // Clear existing content and add the link
+                    tokenStatus.innerHTML = `
+                        <p>Click the link below to open Zerodha login page:</p>
+                        <div style="margin-top: 10px;">
+                            <a href="${result.login_url}" target="_blank" 
+                               style="color: #A0306E; text-decoration: none; font-weight: 600; 
+                                      padding: 8px 16px; border: 1px solid #A0306E; border-radius: 6px; 
+                                      display: inline-block; transition: all 0.3s;">
+                                Open Zerodha Login Page
+                            </a>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 14px;">After logging in, copy the request_token from the URL and paste it below.</p>
+                    `;
+                }
+                
                 if (requestTokenInput) requestTokenInput.disabled = false;
                 updateButtonStates();
+                
+                showMessage('Zerodha login link generated successfully!', 'success');
 
             } catch (error) {
                 showMessage(error.message || 'Failed to generate login URL', 'error');
